@@ -19,7 +19,7 @@ router.post("/blood/bank", registorBloodBank);
 
 // login
 
-router.get("/login", userLogin);
+router.post("/login", userLogin);
 
 // get profile
 
