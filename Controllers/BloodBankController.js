@@ -44,3 +44,41 @@ export const updateBloodBanks = async (req, res) => {
     });
   }
 };
+
+export const getBloodBank = async (req, res) => {
+  const userModal = getDb().db().collection("users");
+  let { mobile } = req;
+  console.log(mobile);
+  try {
+    const result = await userModal.findOne({ mobile: mobile });
+    return res.status(200).json(result);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Something went wrong",
+    });
+  }
+};
+
+export const addBloods = async (req, res) => {
+  const userModal = getDb().db().collection("users");
+  let { mobile } = req;
+  console.log(req.body);
+  try {
+    await userModal.findOneAndUpdate(
+      {
+        mobile: mobile,
+      },
+      {
+        $set: { bloodGroups: req.body },
+      },
+      { returnOriginal: false }
+    );
+    return res.status(201).json({ message: "updated" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Something went wrong",
+    });
+  }
+};

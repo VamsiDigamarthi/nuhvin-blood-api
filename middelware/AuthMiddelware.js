@@ -4,9 +4,10 @@ import jwt from "jsonwebtoken";
 export const authenticateToken = (req, res, next) => {
   let jwtToken;
   const authHeader = req.headers["authorization"];
-  //   console.log(authHeader);
+  // console.log(authHeader);
   if (authHeader !== undefined) {
     jwtToken = authHeader.split(" ")[1];
+    // console.log(jwtToken);
   }
   if (jwtToken === undefined) {
     res.status(401).json({ message: "Invalid JWT Token" });

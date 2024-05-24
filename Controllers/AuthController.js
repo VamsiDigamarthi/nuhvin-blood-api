@@ -94,9 +94,7 @@ export const userLogin = async (req, res) => {
         mobile: user.mobile,
       };
       const expiresIn = "24h";
-      const jwtToken = jwt.sign(payload, process.env.JWT_TOKEN_SECRET, {
-        expiresIn,
-      });
+      const jwtToken = jwt.sign(payload, process.env.JWT_TOKEN_SECRET);
       return res.status(200).json({ token: jwtToken });
     } else {
       return res.status(401).json({ message: "User Does't exist" });
@@ -134,7 +132,9 @@ export const editProfile = async (req, res) => {
   try {
     const user = await userModal.findOne({ mobile: mobile });
     if (user) {
+      console.log(user);
       if (req.body.firstName || req.body.lastName) {
+        // console.log(req.body.firstName);
         await userModal.updateOne(
           { mobile: mobile },
           {
@@ -162,6 +162,33 @@ export const editProfile = async (req, res) => {
           .status(201)
           .json({ message: "Upload profile successfully...!" });
       }
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Something went wrong",
+    });
+  }
+};
+
+export const userAvailable = async (req, res) => {
+  const userModal = getDb().db().collection("users");
+  let { mobile } = req;
+  try {
+    const user = await userModal.findOne({ mobile: mobile });
+    if (user) {
+      let newAvailable = !user.isAvailable;
+      await userModal.updateOne(
+        { mobile: mobile },
+        { $set: { isAvailable: newAvailable } }
+      );
+      res.status(201).json({ message: "Updated Successfully...!" });
+    } else {
+      await userModal.insertOne({
+        mobile: mobile,
+        isAvailable: req.body.isAvailable,
+      });
+      res.status(201).json({ message: "Updated Successfully...!" });
     }
   } catch (error) {
     console.log(error);

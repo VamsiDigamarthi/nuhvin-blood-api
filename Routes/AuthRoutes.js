@@ -4,6 +4,7 @@ import {
   getUser,
   registorAsDonor,
   registorBloodBank,
+  userAvailable,
   userLogin,
 } from "../Controllers/AuthController.js";
 import { authenticateToken } from "../middelware/AuthMiddelware.js";
@@ -31,5 +32,7 @@ router.patch(
   upload.single("image"),
   editProfile
 );
+
+router.patch("/update/user/available", authenticateToken, userAvailable);
 
 export default router;
