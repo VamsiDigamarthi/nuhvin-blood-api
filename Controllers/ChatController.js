@@ -39,12 +39,14 @@ const sendingMailAfterCreateChat = async (res, receiverId, requiredDate) => {
       // console.log(result);
       let config = {
         service: "gmail",
-        host: "smtp.example.com",
+        host: "smtp.hostinger.com",
         port: 587,
         secure: false,
         auth: {
-          user: "software.trainee2@brihaspathi.com",
-          pass: "rqichgzqpgikbuxy",
+          // user: "software.trainee2@brihaspathi.com",
+          // pass: "rqichgzqpgikbuxy",
+          user: "bloodbank@nuhvin.com",
+          pass: "Nuhvin@nbb24",
         },
         tls: {
           rejectUnauthorized: false, // Do not reject self-signed certificates
@@ -81,7 +83,7 @@ const sendingMailAfterCreateChat = async (res, receiverId, requiredDate) => {
       let mail = MailGenerator.generate(response);
 
       let message = {
-        from: "software.trainee2@brihaspathi.com",
+        from: "bloodbank@nuhvin.com",
         to: `${result?.email}`,
         subject: "Urgent: Welcome to NUHVIN BLOOD BANK",
         html: mail,
