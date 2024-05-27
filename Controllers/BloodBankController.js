@@ -3,7 +3,7 @@ import { getDb } from "../Database/mongoDb.js";
 const ObjectId = mongodb.ObjectId;
 
 export const updateBloodBanks = async (req, res) => {
-  const userModal = getDb().db().collection("users");
+  const userModal = getDb().collection("users");
   let { mobile } = req;
   try {
     const user = await userModal.findOne({ mobile: mobile });
@@ -46,9 +46,9 @@ export const updateBloodBanks = async (req, res) => {
 };
 
 export const getBloodBank = async (req, res) => {
-  const userModal = getDb().db().collection("users");
+  const userModal = getDb().collection("users");
   let { mobile } = req;
-  console.log(mobile);
+  // console.log(mobile);
   try {
     const result = await userModal.findOne({ mobile: mobile });
     return res.status(200).json(result);
@@ -61,9 +61,9 @@ export const getBloodBank = async (req, res) => {
 };
 
 export const addBloods = async (req, res) => {
-  const userModal = getDb().db().collection("users");
+  const userModal = getDb().collection("users");
   let { mobile } = req;
-  console.log(req.body);
+  // console.log(req.body);
   try {
     await userModal.findOneAndUpdate(
       {

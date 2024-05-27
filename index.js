@@ -67,6 +67,23 @@ app.use("/patient", Patient);
 app.use("/chat", ChatRoute);
 
 app.use("/message", MessageRoute);
+
+app.delete("/chats", async (req, res) => {
+  // const chatModal = getDb().db().collection("chat");
+  const messageModal = getDb().db().collection("message");
+  // const messageModal = getDb().db().collection("notification");
+  // const patientsModal = getDb().db().collection("patients");
+  const userModal = getDb().db().collection("users");
+  try {
+    await messageModal.deleteMany({});
+    res.status(200).json({ message: "deleted" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Something went wrong",
+    });
+  }
+});
 // app.use("/contact", ContactRoute);
 
 let activeUsers = [];
@@ -106,6 +123,7 @@ io.on("connection", (socket) => {
   socket.on("send-message", (data) => {
     const { receiverId } = data;
     const user = activeUsers.find((user) => user.userId === receiverId);
+    // console.log("on", user);
     if (user) {
       io.to(user.socketId).emit("recieve-message", data);
 
@@ -144,18 +162,20 @@ io.on("connection", (socket) => {
             });
             let response = {
               body: {
-                name: "Daily Tuition",
-                intro: "Your bill has arrived!",
-                table: {
-                  data: [
-                    {
-                      item: "Nodemailer Stack Book",
-                      description: "A Backend application",
-                      price: "$10.99",
-                    },
-                  ],
-                },
-                outro: "Looking forward to do more business",
+                name: `Daily ${result?.firstName}`,
+                intro:
+                  "Welcome to NUHVIN BLOOD BANK! Your registration as a donor means the world to us and to those who may benefit from your lifesaving gift. !",
+                // table: {
+                //   data: [
+                //     {
+                //       item: "Nodemailer Stack Book",
+                //       description: "A Backend application",
+                //       price: "$10.99",
+                //     },
+                //   ],
+                // },
+                outro:
+                  "Thank you for your kindness and willingness to make a difference. ",
               },
             };
 
@@ -163,8 +183,8 @@ io.on("connection", (socket) => {
 
             let message = {
               from: "software.trainee2@brihaspathi.com",
-              to: "vamsidigamarthi03@gmail.com",
-              subject: "Place Order",
+              to: `${result?.email}`,
+              subject: "Urgent: Welcome to NUHVIN BLOOD BANK",
               html: mail,
             };
 

@@ -3,7 +3,7 @@ import { getDb } from "../Database/mongoDb.js";
 const ObjectId = mongodb.ObjectId;
 
 export const addPatientDetails = async (req, res) => {
-  const patientsModal = getDb().db().collection("patients");
+  const patientsModal = getDb().collection("patients");
   let { mobile } = req;
   const {
     patientFirstName,
@@ -45,7 +45,7 @@ export const addPatientDetails = async (req, res) => {
 };
 
 export const getPatinetsDetails = async (req, res) => {
-  const patientsModal = getDb().db().collection("patients");
+  const patientsModal = getDb().collection("patients");
   let { mobile } = req;
   try {
     const result = await patientsModal
@@ -63,7 +63,7 @@ export const getPatinetsDetails = async (req, res) => {
 };
 
 export const getEditPatinet = async (req, res) => {
-  const patientsModal = getDb().db().collection("patients");
+  const patientsModal = getDb().collection("patients");
   let { mobile } = req;
   const {
     patientFirstName,

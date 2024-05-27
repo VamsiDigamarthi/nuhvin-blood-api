@@ -6,6 +6,7 @@ var storage = multer.diskStorage({
     cb(null, "uploads/");
   },
   filename: function (req, file, cb) {
+    console.log(file);
     let ext = path.extname(file.originalname);
     cb(null, Date.now() + ext);
   },
@@ -14,7 +15,12 @@ var storage = multer.diskStorage({
 export var upload = multer({
   storage: storage,
   fileFilter: function (req, file, callback) {
-    if (file.mimetype == "image/png" || file.mimetype == "image/jpg") {
+    console.log(file);
+    if (
+      file.mimetype == "image/png" ||
+      file.mimetype === "image/jpeg" ||
+      file.mimetype === "image/jpg"
+    ) {
       callback(null, true);
     } else {
       console.log("only jpg & png file supports");

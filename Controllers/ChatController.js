@@ -6,7 +6,7 @@ const ObjectId = mongodb.ObjectId;
 import "dotenv/config";
 
 async function checkChatExists(user1Id, user2Id) {
-  const chatModal = getDb().db().collection("chat");
+  const chatModal = getDb().collection("chat");
   try {
     // Query the Chat model to find if there's a chat containing both user IDs
     const chat = await chatModal.findOne({
@@ -30,7 +30,7 @@ async function checkChatExists(user1Id, user2Id) {
 }
 
 const sendingMailAfterCreateChat = async (res, receiverId, requiredDate) => {
-  const userModal = getDb().db().collection("users");
+  const userModal = getDb().collection("users");
   try {
     const result = await userModal.findOne({
       _id: new ObjectId(receiverId),
@@ -62,17 +62,19 @@ const sendingMailAfterCreateChat = async (res, receiverId, requiredDate) => {
       let response = {
         body: {
           name: `Dear ${result?.firstName}`,
-          intro: "Your bill has arrived!",
-          table: {
-            data: [
-              {
-                item: "Nodemailer Stack Book",
-                description: "A Backend application",
-                price: "$10.99",
-              },
-            ],
-          },
-          outro: "Looking forward to do more business",
+          intro:
+            "Welcome to NUHVIN BLOOD BANK! Your registration as a donor means the world to us and to those who may benefit from your lifesaving gift. !",
+          // table: {
+          //   data: [
+          //     {
+          //       item: "Nodemailer Stack Book",
+          //       description: "A Backend application",
+          //       price: "$10.99",
+          //     },
+          //   ],
+          // },
+          outro:
+            "Thank you for your kindness and willingness to make a difference. ", //looking
         },
       };
 
@@ -81,7 +83,7 @@ const sendingMailAfterCreateChat = async (res, receiverId, requiredDate) => {
       let message = {
         from: "software.trainee2@brihaspathi.com",
         to: `${result?.email}`,
-        subject: " Urgent: Blood Donation Needed",
+        subject: "Urgent: Welcome to NUHVIN BLOOD BANK",
         html: mail,
       };
 
@@ -106,7 +108,7 @@ const sendingMailAfterCreateChat = async (res, receiverId, requiredDate) => {
 };
 
 export const createChat = async (req, res) => {
-  const chatModal = getDb().db().collection("chat");
+  const chatModal = getDb().collection("chat");
   const senderId = req.body.senderId;
   const receiverId = req.body.receiverId;
   const requiredDate = req.body?.requiredDate;
@@ -129,8 +131,39 @@ export const createChat = async (req, res) => {
   }
 };
 
+// export const createChat = async (req, res) => {
+//   const chatModal = getDb().collection("chat");
+//   const senderId = req.body.senderId;
+//   const receiverId = req.body.receiverId;
+//   const requiredDate = req.body?.requiredDate;
+//   const chat = await chatModal.findOne({
+//     members: {
+//       $all: [senderId, receiverId],
+//     },
+//   });
+
+//   if (chat) {
+//     return res.status(200).json(chat);
+//   }
+//   // const chatExists = await checkChatExists(senderId, receiverId);
+
+//   const doc = {
+//     members: [senderId, receiverId],
+//   };
+
+//   try {
+//     const result = await chatModal.insertOne(doc);
+//     return res.status(200).json(result);
+//     // console.log("Chat created");
+//     // sendingMailAfterCreateChat(res, receiverId, requiredDate);
+//   } catch (error) {
+//     // console.error("Error creating chat:", error);
+//     return res.status(500).json(error);
+//   }
+// };
+
 export const userChats = async (req, res) => {
-  const chatModal = getDb().db().collection("chat");
+  const chatModal = getDb().collection("chat");
   try {
     const chat = await chatModal
       .find({
@@ -144,7 +177,7 @@ export const userChats = async (req, res) => {
 };
 
 export const findChat = async (req, res) => {
-  const chatModal = getDb().db().collection("chat");
+  const chatModal = getDb().collection("chat");
   try {
     const chat = await chatModal.findOne({
       members: { $all: [req.params.firstId, req.params.secondId] },

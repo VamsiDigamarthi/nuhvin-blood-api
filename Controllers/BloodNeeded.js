@@ -4,7 +4,7 @@ const ObjectId = mongodb.ObjectId;
 
 // donors list api
 export const donorList = async (req, res) => {
-  const userModal = getDb().db().collection("users");
+  const userModal = getDb().collection("users");
   let meters = parseInt(req.params.distance) * 1000;
   // console.log(req.params.longitude);
   try {
@@ -46,8 +46,9 @@ export const donorList = async (req, res) => {
 };
 
 export const bloodBankList = async (req, res) => {
-  const userModal = getDb().db().collection("users");
+  const userModal = getDb().collection("users");
   let meters = parseInt(req.params.distance) * 1000;
+  console.log(req.params?.bloodGroup, req.params?.quantity);
   try {
     const donors = await userModal
       .find({
@@ -89,7 +90,7 @@ export const bloodBankList = async (req, res) => {
 
 // recevires list api
 export const getRecevierList = async (req, res) => {
-  const patientsModal = getDb().db().collection("patients");
+  const patientsModal = getDb().collection("patients");
   let meters = parseInt(req.params.distance) * 1000;
   try {
     const receviers = await patientsModal

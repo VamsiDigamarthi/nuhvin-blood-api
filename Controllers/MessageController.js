@@ -4,7 +4,7 @@ import "dotenv/config";
 process.env.TZ = "Asia/Kolkata";
 
 export const addMessage = async (req, res) => {
-  const messageModal = getDb().db().collection("message");
+  const messageModal = getDb().collection("message");
   const { chatId, senderId, text } = req.body;
   const doc = {
     chatId,
@@ -24,7 +24,7 @@ export const addMessage = async (req, res) => {
 };
 
 export const getMessages = async (req, res) => {
-  const messageModal = getDb().db().collection("message");
+  const messageModal = getDb().collection("message");
   const { chatId } = req.params;
   // console.log(chatId);
   try {
@@ -38,7 +38,7 @@ export const getMessages = async (req, res) => {
 
 export const notifications = async (req, res) => {
   const { senderId, chartId, receiverId } = req.body;
-  const messageModal = getDb().db().collection("notification");
+  const messageModal = getDb().collection("notification");
   const doc = {
     senderId,
     chartId,
@@ -54,7 +54,7 @@ export const notifications = async (req, res) => {
 };
 
 export const getAllNotifications = async (req, res) => {
-  const messageModal = getDb().db().collection("notification");
+  const messageModal = getDb().collection("notification");
   try {
     const result = await messageModal
       .find({ $and: [{ receiverId: req.params.userId }, { isReady: false }] })
@@ -66,7 +66,7 @@ export const getAllNotifications = async (req, res) => {
 };
 
 export const notificationsMarkAsRead = async (req, res) => {
-  const messageModal = getDb().db().collection("notification");
+  const messageModal = getDb().collection("notification");
   try {
     await messageModal.updateMany(
       {

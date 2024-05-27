@@ -7,6 +7,7 @@ const MongoClient = mongodb.MongoClient;
 const mongoDbUrl = process.env.MONGODB_URL;
 
 let _db;
+const dbName = 'blood';
 export const initDb = (callback) => {
   if (_db) {
     console.log("Database is already initialized");
@@ -14,7 +15,7 @@ export const initDb = (callback) => {
   }
   MongoClient.connect(mongoDbUrl)
     .then((client) => {
-      _db = client;
+      _db = client.db(dbName);
       callback(null, _db);
     })
     .catch((err) => callback(err));
