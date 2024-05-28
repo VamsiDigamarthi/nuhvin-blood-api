@@ -4,6 +4,7 @@ const ObjectId = mongodb.ObjectId;
 
 export const addPatientDetails = async (req, res) => {
   const patientsModal = getDb().collection("patients");
+  const userModal = getDb().collection("users");
   let { mobile } = req;
   const {
     patientFirstName,
@@ -14,6 +15,8 @@ export const addPatientDetails = async (req, res) => {
     requestType,
     requiredDate,
     hospitalName,
+    emergency,
+    AttendePhone,
   } = req.body;
   try {
     await patientsModal.insertOne({
@@ -25,6 +28,8 @@ export const addPatientDetails = async (req, res) => {
       requestType,
       requiredDate,
       hospitalName,
+      emergency: emergency ? emergency : false,
+      AttendePhone,
       location: {
         type: "Point",
         coordinates: [
@@ -34,6 +39,15 @@ export const addPatientDetails = async (req, res) => {
       },
       author: mobile,
     });
+
+    await userModal.updateOne(
+      { mobile: mobile },
+      {
+        $set: {
+          isAddPatinet: true,
+        },
+      }
+    );
 
     return res.status(201).json({ message: "Updated Patient Details..!" });
   } catch (error) {
@@ -74,6 +88,7 @@ export const getEditPatinet = async (req, res) => {
     requestType,
     requiredDate,
     hospitalName,
+    AttendePhone,
   } = req.body;
   const updateFields = {};
   if (patientFirstName) updateFields.patientFirstName = patientFirstName;
@@ -84,6 +99,7 @@ export const getEditPatinet = async (req, res) => {
   if (requestType) updateFields.requestType = requestType;
   if (requiredDate) updateFields.requiredDate = requiredDate;
   if (hospitalName) updateFields.hospitalName = hospitalName;
+  if (AttendePhone) updateFields.AttendePhone = AttendePhone;
   // console.log(updateFields);
   try {
     await patientsModal.updateOne(

@@ -26,6 +26,9 @@ export const registorAsDonor = async (req, res) => {
     gender: req.body?.gender,
     address: req.body?.locations,
     isAvailable: true,
+    isAddPatinet: false,
+    signupTime: req.body?.signupTime,
+    termAndCondition: req.body?.termAndCondition,
     employeeType: "Donor",
     location: {
       type: "Point",
@@ -67,6 +70,7 @@ export const registorBloodBank = async (req, res) => {
     isAvailable: true,
     startTime: req.body?.startTime,
     endTime: req.body?.endTime,
+    termAndCondition: req.body.termAndCondition,
     location: {
       type: "Point",
       coordinates: [
@@ -189,17 +193,19 @@ export const userAvailable = async (req, res) => {
     const user = await userModal.findOne({ mobile: mobile });
     if (user) {
       let newAvailable = !user.isAvailable;
-      await userModal.updateOne(
-        { mobile: mobile },
-        { $set: { isAvailable: newAvailable, reason: req.body?.reason } }
-      );
-      res.status(201).json({ message: "Updated Successfully...!" });
-    } else {
-      await userModal.insertOne({
-        mobile: mobile,
-        isAvailable: req.body.isAvailable,
-      });
-      res.status(201).json({ message: "Updated Successfully...!" });
+      if (req.body?.reason) {
+        await userModal.updateOne(
+          { mobile: mobile },
+          { $set: { isAvailable: newAvailable, reason: req.body?.reason } }
+        );
+        return res.status(201).json({ message: "Updated Successfully...!" });
+      } else {
+        await userModal.updateOne(
+          { mobile: mobile },
+          { $set: { isAvailable: newAvailable } }
+        );
+        return res.status(201).json({ message: "Updated Successfully...!" });
+      }
     }
   } catch (error) {
     console.log(error);
