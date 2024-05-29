@@ -425,3 +425,31 @@ export const getFeeds = async (req, res) => {
     });
   }
 };
+
+export const uploadBannersTwo = async (req, res) => {
+  const userModal = getDb().collection("banersTwo");
+  try {
+    await userModal.insertOne({
+      image: req.file.path,
+    });
+    return res.status(201).json({ message: "uploaded successfully..!" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Something went wrong",
+    });
+  }
+};
+
+export const bannersTwo =async (req, res) => {
+  const userModal = getDb().collection("banersTwo");
+  try {
+    const banners = await userModal.find({}).toArray();
+    res.status(200).json(banners);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Something went wrong",
+    });
+  }
+}

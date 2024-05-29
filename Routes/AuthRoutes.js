@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  bannersTwo,
   editPic,
   editProfile,
   getBanners,
@@ -9,6 +10,7 @@ import {
   registorAsDonor,
   registorBloodBank,
   sendOtp,
+  uploadBannersTwo,
   uploadFeed,
   uploadPic,
   userAvailable,
@@ -58,5 +60,8 @@ router.get("/banners", authenticateToken, getBanners);
 router.post("/feed/pic", upload.single("image"), uploadFeed);
 
 router.get("/feeds", authenticateToken, getFeeds);
+
+router.post("/bannerstwo", upload.single("image"), uploadBannersTwo);
+router.get("/bannersTwo", authenticateToken, bannersTwo);
 
 export default router;
