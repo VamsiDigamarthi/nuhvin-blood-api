@@ -1,11 +1,110 @@
 import mongodb from "mongodb";
 import { getDb } from "../Database/mongoDb.js";
-import nodemailer from "nodemailer";
+import axios from "axios";
+// import nodemailer from "nodemailer";
 // const nodemailer = require("nodemailer");
-import Mailgen from "mailgen";
+// import Mailgen from "mailgen";
 const ObjectId = mongodb.ObjectId;
 import "dotenv/config";
 import jwt from "jsonwebtoken";
+import fetch from "node-fetch";
+//
+const apiKey = "NjM1MDM3MzI0YTU4NjY0OTcwMzY3YTYxNzY0MzRkMzQ=";
+const sender = "Ram Nayak";
+const templateId = "749947";
+// const message = "hey";
+// const recipientNumber = "9014548747";
+const url = "https://api.textlocal.in/send";
+//
+
+async function sendOTP(recipientNumber, otp, message) {
+  const url = "https://api.textlocal.in/send";
+
+  const params = new URLSearchParams({
+    apiKey: apiKey,
+    numbers: recipientNumber,
+    template: templateId,
+    message: message,
+    sender: sender,
+    otp: otp,
+  });
+
+  try {
+    const response = await axios.post(url, params);
+    console.log("Response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error:", error.response.data);
+    throw error;
+  }
+}
+export const sendOtp = async (req, res) => {
+  // const { recipientNumber } = req.body;
+  const message = "Your OTP is: 1234";
+  let recipientNumber = "9014548747";
+  try {
+    // Generate a random 4-digit OTP
+    const otp = Math.floor(1000 + Math.random() * 9000);
+
+    // Send OTP via Textlocal API
+    const response = await sendOTP(recipientNumber, otp, message);
+
+    res.json({ success: true, message: "OTP sent successfully" });
+  } catch (error) {
+    console.error("Error sending OTP:", error);
+    res.status(500).json({ success: false, message: "Failed to send OTP" });
+  }
+  // ---------------------------------------------------
+  // async function sendOTP(recipientNumber, message) {
+  //   const url = "https://api.textlocal.in/send";
+
+  //   const params = new URLSearchParams({
+  //     apikey: apiKey,
+  //     numbers: recipientNumber,
+  //     message: message,
+  //     template: templateId,
+  //     sender: sender,
+  //   });
+
+  //   try {
+  //     const response = await axios.post(url, params);
+  //     console.log("Response:", response.data);
+  //     return response.data;
+  //   } catch (error) {
+  //     console.error("Error:", error.response.data);
+  //     throw error;
+  //   }
+  // }
+
+  // // Usage
+  // const recipientNumber = "+919014548747";
+  // const message = "Your OTP is: 1234";
+  // sendOTP(recipientNumber, message)
+  //   .then(() => console.log("OTP sent successfully"))
+  //   .catch((error) => console.error("Failed to send OTP:", error));
+
+  // ===================================
+  //
+  //
+  // const params = new URLSearchParams({
+  //   apikey: apiKey,
+  //   numbers: recipientNumber, // Use single recipient number here
+  //   message: message,
+  //   sender: sender,
+  // });
+
+  // fetch(url, {
+  //   method: "POST",
+  //   body: params,
+  // })
+  //   .then((response) => response.json())
+  //   .then((data) => {
+  //     console.log("Response:", data);
+  //   })
+  //   .catch((error) => {
+  //     console.error("Error:", error);
+  //   });
+};
 
 export const registorAsDonor = async (req, res) => {
   const userModal = getDb().collection("users");
@@ -139,44 +238,45 @@ export const getUser = async (req, res) => {
 export const editProfile = async (req, res) => {
   const userModal = getDb().collection("users");
   let { mobile } = req;
+
+  const {
+    firstName,
+    lastName,
+    email,
+    dateOfBirth,
+    locations,
+    startTime,
+    endTime,
+    bloodGroup,
+    bloodBankName,
+  } = req.body;
+  const updateFields = {};
+  if (firstName) updateFields.firstName = firstName;
+  if (lastName) updateFields.lastName = lastName;
+  if (email) updateFields.email = email;
+  if (dateOfBirth) updateFields.dateOfBirth = dateOfBirth;
+  if (locations) updateFields.locations = locations;
+  if (startTime) updateFields.startTime = startTime;
+  if (endTime) updateFields.endTime = endTime;
+  if (bloodGroup) updateFields.bloodGroup = bloodGroup;
+  if (bloodBankName) updateFields.bloodBankName = bloodBankName;
+
   try {
     const user = await userModal.findOne({ mobile: mobile });
     if (user) {
       // console.log(user);
-      if (req.body.firstName || req.body.lastName) {
-        // console.log(req.body.firstName);
-        await userModal.updateOne(
-          { mobile: mobile },
-          {
-            $set: {
-              firstName: req.body?.firstName,
-              lastName: req.body?.lastName,
-              email: req.body?.email,
-              dateOfBirth: req.body?.dateOfBirth,
-              address: req.body?.locations,
-              startTime: req.body?.startTime,
-              endTime: req.body?.endTime,
-              // profile: req.file.path,
-            },
-          }
-        );
-        return res
-          .status(201)
-          .json({ message: "Upload profile successfully...!" });
-      } else {
-        await userModal.updateOne(
-          { mobile: mobile },
-          {
-            $set: {
-              bloodBankName: req.body.bloodBankName,
-              profile: req.file.path,
-            },
-          }
-        );
-        return res
-          .status(201)
-          .json({ message: "Upload profile successfully...!" });
-      }
+      // console.log(req.body.firstName);
+      await userModal.updateOne(
+        { mobile: mobile },
+        {
+          $set: {
+            ...updateFields,
+          },
+        }
+      );
+      return res
+        .status(201)
+        .json({ message: "Upload profile successfully...!" });
     }
   } catch (error) {
     console.log(error);
@@ -297,6 +397,7 @@ export const getBanners = async (req, res) => {
 
 export const uploadFeed = async (req, res) => {
   const feeds = getDb().collection("feeds");
+  // console.log(req.body?.title);
   try {
     await feeds.insertOne({
       title: req.body?.title,

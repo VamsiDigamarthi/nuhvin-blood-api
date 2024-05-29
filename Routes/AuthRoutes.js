@@ -8,6 +8,7 @@ import {
   getUserById,
   registorAsDonor,
   registorBloodBank,
+  sendOtp,
   uploadFeed,
   uploadPic,
   userAvailable,
@@ -17,6 +18,8 @@ import { authenticateToken } from "../middelware/AuthMiddelware.js";
 import { upload } from "../middelware/fileUpload.js";
 
 const router = express.Router();
+
+router.post("/send-otp", sendOtp);
 
 router.post("/donor", registorAsDonor);
 
@@ -52,7 +55,7 @@ router.post("/post/pic", upload.single("image"), uploadPic);
 router.get("/banners", authenticateToken, getBanners);
 // feets
 
-router.post("feed/pic", upload.single("image"), uploadFeed);
+router.post("/feed/pic", upload.single("image"), uploadFeed);
 
 router.get("/feeds", authenticateToken, getFeeds);
 
