@@ -71,6 +71,10 @@ app.use("/chat", ChatRoute);
 
 app.use("/message", MessageRoute);
 
+app.get("/", (req, res) => {
+  res.status(200).json({ message: "Hello World.......!" });
+});
+
 //
 let token = "58d71d95-1cf7-11ef-8b60-0200cd936042";
 app.get("/send-otp", async (req, res) => {

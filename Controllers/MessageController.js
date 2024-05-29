@@ -88,23 +88,5 @@ export const notificationsMarkAsRead = async (req, res) => {
   }
 };
 
-// export const sendPushNotification = async (req, res) => {
-//   console.log("fghjmk,l./");
-//   const message = {
-//     data: {
-//       title: req.body.title,
-//       body: req.body.body,
-//       // You can include additional data if needed
-//     },
-//     token: req.body.registrationToken,
-//   };
 
-//   try {
-//     const response = await admin.messaging().send(message);
-//     console.log("Successfully sent message:", response);
-//     res.status(200).json("success");
-//   } catch (error) {
-//     console.error("Error sending message:", error);
-//     res.status(500).json("fail");
-//   }
-// };
+

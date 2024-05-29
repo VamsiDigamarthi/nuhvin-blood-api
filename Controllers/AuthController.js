@@ -1,9 +1,6 @@
 import mongodb from "mongodb";
 import { getDb } from "../Database/mongoDb.js";
 import axios from "axios";
-// import nodemailer from "nodemailer";
-// const nodemailer = require("nodemailer");
-// import Mailgen from "mailgen";
 const ObjectId = mongodb.ObjectId;
 import "dotenv/config";
 import jwt from "jsonwebtoken";
