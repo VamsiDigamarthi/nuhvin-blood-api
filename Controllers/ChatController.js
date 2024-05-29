@@ -166,7 +166,8 @@ export const createChat = async (req, res) => {
 
   try {
     await chatModal.insertOne(doc);
-    sendingMailAfterCreateChat(res, receiverId, requiredDate);
+    // sendingMailAfterCreateChat(res, receiverId, requiredDate);
+    return res.status(200).send("Chat created");
   } catch (error) {
     // console.error("Error creating chat:", error);
     return res.status(500).json(error);

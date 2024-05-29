@@ -238,13 +238,13 @@ export const getUser = async (req, res) => {
 export const editProfile = async (req, res) => {
   const userModal = getDb().collection("users");
   let { mobile } = req;
-
+  console.log(req.body);
   const {
     firstName,
     lastName,
     email,
     dateOfBirth,
-    locations,
+    address,
     startTime,
     endTime,
     bloodGroup,
@@ -255,7 +255,7 @@ export const editProfile = async (req, res) => {
   if (lastName) updateFields.lastName = lastName;
   if (email) updateFields.email = email;
   if (dateOfBirth) updateFields.dateOfBirth = dateOfBirth;
-  if (locations) updateFields.locations = locations;
+  if (address) updateFields.address = address;
   if (startTime) updateFields.startTime = startTime;
   if (endTime) updateFields.endTime = endTime;
   if (bloodGroup) updateFields.bloodGroup = bloodGroup;
@@ -441,7 +441,7 @@ export const uploadBannersTwo = async (req, res) => {
   }
 };
 
-export const bannersTwo =async (req, res) => {
+export const bannersTwo = async (req, res) => {
   const userModal = getDb().collection("banersTwo");
   try {
     const banners = await userModal.find({}).toArray();
@@ -452,4 +452,4 @@ export const bannersTwo =async (req, res) => {
       message: "Something went wrong",
     });
   }
-}
+};

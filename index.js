@@ -5,6 +5,7 @@ import bodyParser from "body-parser";
 import nodemailer from "nodemailer";
 import Mailgen from "mailgen";
 import fetch from "node-fetch";
+import axios from "axios";
 // import nodemailer from "nodemailer";
 import mongodb from "mongodb";
 // const { OTPless } = require('otpless-node-js-auth-sdk');
@@ -71,14 +72,15 @@ app.use("/chat", ChatRoute);
 app.use("/message", MessageRoute);
 
 //
+let token = "58d71d95-1cf7-11ef-8b60-0200cd936042";
 app.get("/send-otp", async (req, res) => {
   // https://2factor.in/API/V1/:api_key/SMS/:phone_number/AUTOGEN/:otp_template_name
-  let token = "58d71d95-1cf7-11ef-8b60-0200cd936042";
+
   let mobile = "+919963965937";
-  let otp = "6789"
+  let otp = "6789";
 
   // const url = `https://2factor.in/API/V1/${token}/SMS/${mobile}/AUTOGEN/:otp_template_name`;
-  const url = `https://2factor.in/API/V1/${token}/SMS/${mobile}/${otp}/:otp_template_name`
+  const url = `https://2factor.in/API/V1/${token}/SMS/${mobile}/${otp}/:otp_template_name`;
 
   fetch(url, {
     method: "GET",
@@ -95,8 +97,8 @@ app.get("/send-otp", async (req, res) => {
 app.post("/verify", async (req, res) => {
   let token = "58d71d95-1cf7-11ef-8b60-0200cd936042";
   let mobile = "+919963965937";
-  let otp ='6789'
-  let url = `https://2factor.in/API/V1/${token}y/SMS/VERIFY3/${mobile}/${req.body.otp}`
+  let otp = "6789";
+  let url = `https://2factor.in/API/V1/${token}y/SMS/VERIFY3/${mobile}/${req.body.otp}`;
 
   fetch(url, {
     method: "GET",
@@ -108,7 +110,26 @@ app.post("/verify", async (req, res) => {
     .catch((error) => {
       console.error("Error:", error);
     });
-})
+});
+
+app.post("/send-otp", async (req, res) => {
+  const { phoneNumber } = req.body;
+
+  if (!phoneNumber) {
+    return res.status(400).json({ error: "Phone number is required" });
+  }
+
+  try {
+    const response = await axios.get(
+      `https://2factor.in/API/V1/${token}/SMS/${phoneNumber}/AUTOGEN`
+    );
+    res.json(response.data);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "Failed to send OTP", details: error.message });
+  }
+});
 
 app.delete("/chats", async (req, res) => {
   // const chatModal = getDb().db().collection("chat");
