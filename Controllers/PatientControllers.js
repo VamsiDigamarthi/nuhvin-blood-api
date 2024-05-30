@@ -17,6 +17,7 @@ export const addPatientDetails = async (req, res) => {
     hospitalName,
     emergency,
     AttendePhone,
+    addTime,
   } = req.body;
   try {
     await patientsModal.insertOne({
@@ -29,7 +30,10 @@ export const addPatientDetails = async (req, res) => {
       requiredDate,
       hospitalName,
       emergency: emergency ? emergency : false,
+      isDelete: false,
+      active: true,
       AttendePhone,
+      addTime,
       location: {
         type: "Point",
         coordinates: [
@@ -112,6 +116,63 @@ export const getEditPatinet = async (req, res) => {
       }
     );
     return res.status(200).json({ message: "updated successfully...!" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Something went wrong",
+    });
+  }
+};
+
+export const isDeletePatinet = async (req, res) => {
+  const patientsModal = getDb().collection("patients");
+  let { mobile } = req;
+  let { patinetId } = req.params;
+  try {
+    const patinet = await patientsModal.findOne({
+      $and: [{ author: mobile }, { _id: new ObjectId(patinetId) }],
+    });
+
+    if (patinet) {
+      let isDelete = !patinet.isDelete;
+      await patientsModal.updateOne(
+        { $and: [{ author: mobile }, { _id: new ObjectId(patinetId) }] },
+        { $set: { isDelete: isDelete } }
+      );
+      return res.status(201).json({ message: "updated successfully ....!" });
+    } else {
+      return res
+        .status(400)
+        .json({ message: "patient not found plaese check once...!" });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Something went wrong",
+    });
+  }
+};
+
+export const isActivePatinet = async (req, res) => {
+  const patientsModal = getDb().collection("patients");
+  let { mobile } = req;
+  let { patinetId } = req.params;
+  try {
+    const patinet = await patientsModal.findOne({
+      $and: [{ author: mobile }, { _id: new ObjectId(patinetId) }],
+    });
+    if (patinet) {
+      let isDelete = !patinet.isDelete;
+      await patientsModal.updateOne(
+        { $and: [{ author: mobile }, { _id: new ObjectId(patinetId) }] },
+        { $set: { isDelete: isDelete } }
+      );
+      return res.status(201).json({ message: "updated successfully ....!" });
+    } else {
+      return res
+        .status(400)
+        .json({ message: "patient not found plaese check once...!" });
+    }
   } catch (error) {
     console.log(error);
     return res.status(500).json({

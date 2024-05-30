@@ -82,3 +82,26 @@ export const addBloods = async (req, res) => {
     });
   }
 };
+
+export const addBloodBankTimmings = async (req, res) => {
+  const userModal = getDb().collection("users");
+  let { mobile } = req;
+  try {
+    await userModal.findOneAndUpdate(
+      {
+        mobile: mobile,
+      },
+      {
+        $set: { bloodBankTimming: req.body },
+      },
+      { returnOriginal: false }
+    );
+    return res.status(201).json({ message: "updated" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Something went wrong",
+      error,
+    });
+  }
+};

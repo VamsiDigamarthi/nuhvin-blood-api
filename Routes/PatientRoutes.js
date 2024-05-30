@@ -4,6 +4,8 @@ import {
   addPatientDetails,
   getEditPatinet,
   getPatinetsDetails,
+  isActivePatinet,
+  isDeletePatinet,
 } from "../Controllers/PatientControllers.js";
 
 const router = express.Router();
@@ -17,5 +19,9 @@ router.get("/get/patinet", authenticateToken, getPatinetsDetails);
 // edit patients
 
 router.patch("/edit/patient", authenticateToken, getEditPatinet);
+
+router.patch("/isdelete/:patinetId", authenticateToken, isDeletePatinet);
+
+router.patch("/isActive/:patinetId", authenticateToken, isActivePatinet)
 
 export default router;
