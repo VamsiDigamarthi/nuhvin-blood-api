@@ -246,6 +246,7 @@ export const editProfile = async (req, res) => {
     endTime,
     bloodGroup,
     bloodBankName,
+    gender,
   } = req.body;
   const updateFields = {};
   if (firstName) updateFields.firstName = firstName;
@@ -257,7 +258,7 @@ export const editProfile = async (req, res) => {
   if (endTime) updateFields.endTime = endTime;
   if (bloodGroup) updateFields.bloodGroup = bloodGroup;
   if (bloodBankName) updateFields.bloodBankName = bloodBankName;
-
+  if (gender) updateFields.gender = gender;
   try {
     const user = await userModal.findOne({ mobile: mobile });
     if (user) {

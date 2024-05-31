@@ -33,7 +33,7 @@ export const addPatientDetails = async (req, res) => {
       isDelete: false,
       active: true,
       AttendePhone,
-      addTime,
+      addTime: addTime ? addTime : "not time",
       location: {
         type: "Point",
         coordinates: [
@@ -162,10 +162,10 @@ export const isActivePatinet = async (req, res) => {
       $and: [{ author: mobile }, { _id: new ObjectId(patinetId) }],
     });
     if (patinet) {
-      let isDelete = !patinet.isDelete;
+      let active = !patinet.active;
       await patientsModal.updateOne(
         { $and: [{ author: mobile }, { _id: new ObjectId(patinetId) }] },
-        { $set: { isDelete: isDelete } }
+        { $set: { active: active } }
       );
       return res.status(201).json({ message: "updated successfully ....!" });
     } else {
