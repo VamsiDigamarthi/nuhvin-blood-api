@@ -1,12 +1,15 @@
 import express from "express";
 import {
   bannersTwo,
+  bloodbankCount,
+  donorsCount,
   editPic,
   editProfile,
   getBanners,
   getFeeds,
   getUser,
   getUserById,
+  patinetCount,
   registorAsDonor,
   registorBloodBank,
   sendOtp,
@@ -15,6 +18,7 @@ import {
   uploadPic,
   userAvailable,
   userLogin,
+  verifyOtp,
 } from "../Controllers/AuthController.js";
 import { authenticateToken } from "../middelware/AuthMiddelware.js";
 import { upload } from "../middelware/fileUpload.js";
@@ -22,6 +26,8 @@ import { upload } from "../middelware/fileUpload.js";
 const router = express.Router();
 
 router.post("/send-otp", sendOtp);
+
+router.post("/verify-otp", verifyOtp);
 
 router.post("/donor", registorAsDonor);
 
@@ -63,5 +69,12 @@ router.get("/feeds", authenticateToken, getFeeds);
 
 router.post("/bannerstwo", upload.single("image"), uploadBannersTwo);
 router.get("/bannersTwo", authenticateToken, bannersTwo);
+
+// donors count
+
+router.get("/donors/count", donorsCount);
+
+router.get("/bloodbank/count", bloodbankCount);
+router.get("/patinet/count", patinetCount);
 
 export default router;

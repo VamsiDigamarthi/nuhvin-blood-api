@@ -1,116 +1,124 @@
 import mongodb from "mongodb";
 import { getDb } from "../Database/mongoDb.js";
-import axios from "axios";
+
 const ObjectId = mongodb.ObjectId;
 import "dotenv/config";
 import jwt from "jsonwebtoken";
-import fetch from "node-fetch";
-//
-const apiKey = "NjM1MDM3MzI0YTU4NjY0OTcwMzY3YTYxNzY0MzRkMzQ=";
-const sender = "Ram Nayak";
-const templateId = "749947";
-// const message = "hey";
-// const recipientNumber = "9014548747";
-const url = "https://api.textlocal.in/send";
+import axios from "axios";
+import { upload } from "../middelware/fileUpload.js";
+
 //
 
-async function sendOTP(recipientNumber, otp, message) {
-  const url = "https://api.textlocal.in/send";
-
-  const params = new URLSearchParams({
-    apiKey: apiKey,
-    numbers: recipientNumber,
-    template: templateId,
-    message: message,
-    sender: sender,
-    otp: otp,
-  });
-
-  try {
-    const response = await axios.post(url, params);
-    console.log("Response:", response.data);
-    return response.data;
-  } catch (error) {
-    console.error("Error:", error.response.data);
-    throw error;
-  }
-}
 export const sendOtp = async (req, res) => {
-  // const { recipientNumber } = req.body;
-  const message = "Your OTP is: 1234";
-  let recipientNumber = "9014548747";
+  const { mobile } = req.body;
   try {
-    // Generate a random 4-digit OTP
-    const otp = Math.floor(1000 + Math.random() * 9000);
-
-    // Send OTP via Textlocal API
-    const response = await sendOTP(recipientNumber, otp, message);
-
-    res.json({ success: true, message: "OTP sent successfully" });
+    getDb()
+      .collection("otp")
+      .findOne({ mobile: mobile })
+      .then((otpUser) => {
+        var otp = Math.floor(100000 + Math.random() * 900000);
+        if (otpUser) {
+          axios(
+            `https://2factor.in/API/V1/${process.env.OTP_API_KEY}/SMS/+91${mobile}/${otp}/OTP TEMPLATE`
+          )
+            .then(() => {
+              getDb()
+                .collection("otp")
+                .updateOne({ mobile: mobile }, { $set: { otp_value: otp } })
+                .then(() => {
+                  return res
+                    .status(200)
+                    .json({ message: "otp send & updated db" });
+                })
+                .catch((e) => {
+                  return res.status(500).json({
+                    message: err,
+                  });
+                });
+            })
+            .catch((err) => {
+              console.log("otp  sending existing user some err");
+              return res.status(400).json({ message: "otp send failed" });
+            });
+        } else {
+          var otp = Math.floor(100000 + Math.random() * 900000);
+          const doc = { mobile: mobile, otp_value: otp };
+          axios(
+            `https://2factor.in/API/V1/${process.env.OTP_API_KEY}/SMS/+91${mobile}/${otp}/OTP TEMPLATE`
+          )
+            .then(() => {
+              getDb()
+                .collection("otp")
+                .insertOne(doc)
+                .then(() => {
+                  return res
+                    .status(200)
+                    .json({ message: "otp send updated db" });
+                })
+                .catch((e) => {
+                  return res.status(500).json({
+                    message: err,
+                  });
+                });
+            })
+            .catch((err) => {
+              console.log("otp  sending existing user some err");
+              return res.status(400).json({ message: "otp send failed" });
+            });
+        }
+      })
+      .catch((e) => {
+        console.log("user not exist but failure to load ");
+        console.log(e);
+      });
   } catch (error) {
-    console.error("Error sending OTP:", error);
-    res.status(500).json({ success: false, message: "Failed to send OTP" });
+    console.log(error);
+    return res.status(500).json({
+      message: "Something went wrong",
+    });
   }
-  // ---------------------------------------------------
-  // async function sendOTP(recipientNumber, message) {
-  //   const url = "https://api.textlocal.in/send";
+};
 
-  //   const params = new URLSearchParams({
-  //     apikey: apiKey,
-  //     numbers: recipientNumber,
-  //     message: message,
-  //     template: templateId,
-  //     sender: sender,
-  //   });
+export const verifyOtp = async (req, res) => {
+  const userModal = getDb().collection("users");
+  const otoModal = getDb().collection("otp");
+  const { mobile, otp } = req.body;
 
-  //   try {
-  //     const response = await axios.post(url, params);
-  //     console.log("Response:", response.data);
-  //     return response.data;
-  //   } catch (error) {
-  //     console.error("Error:", error.response.data);
-  //     throw error;
-  //   }
-  // }
-
-  // // Usage
-  // const recipientNumber = "+919014548747";
-  // const message = "Your OTP is: 1234";
-  // sendOTP(recipientNumber, message)
-  //   .then(() => console.log("OTP sent successfully"))
-  //   .catch((error) => console.error("Failed to send OTP:", error));
-
-  // ===================================
-  //
-  //
-  // const params = new URLSearchParams({
-  //   apikey: apiKey,
-  //   numbers: recipientNumber, // Use single recipient number here
-  //   message: message,
-  //   sender: sender,
-  // });
-
-  // fetch(url, {
-  //   method: "POST",
-  //   body: params,
-  // })
-  //   .then((response) => response.json())
-  //   .then((data) => {
-  //     console.log("Response:", data);
-  //   })
-  //   .catch((error) => {
-  //     console.error("Error:", error);
-  //   });
+  try {
+    const result = await otoModal.findOne({ mobile: mobile });
+    if (result) {
+      if (result.otp_value.toString() === otp.toString()) {
+        const user = await userModal.findOne({ mobile: mobile });
+        if (user) {
+          const payload = {
+            mobile: user.mobile,
+          };
+          const expiresIn = "24h";
+          const jwtToken = jwt.sign(payload, process.env.JWT_TOKEN_SECRET);
+          return res.status(200).json({ token: jwtToken });
+        } else {
+          return res.status(401).json({ message: "User Does't exist" });
+        }
+      } else {
+        return res.status(401).json({
+          msg: "Otp Invalid",
+        });
+      }
+    } else {
+      return res.status(401).json({
+        msg: "User Not Found",
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Something went wrong",
+    });
+  }
 };
 
 export const registorAsDonor = async (req, res) => {
   const userModal = getDb().collection("users");
-  const user = await userModal.findOne({ mobile: req.body?.mobile });
-  if (user) {
-    return res.status(400).json({
-      message: "User already exists",
-    });
-  }
 
   const docs = {
     firstName: req.body?.firstName,
@@ -134,7 +142,6 @@ export const registorAsDonor = async (req, res) => {
       ],
     },
   };
-
   try {
     await userModal.insertOne(docs);
     return res.status(201).json({
@@ -150,6 +157,7 @@ export const registorAsDonor = async (req, res) => {
 
 export const registorBloodBank = async (req, res) => {
   const userModal = getDb().collection("users");
+
   const user = await userModal.findOne({ mobile: req.body?.mobile });
   if (user) {
     return res.status(400).json({
@@ -174,12 +182,11 @@ export const registorBloodBank = async (req, res) => {
         parseFloat(req.body?.latitude),
       ],
     },
-    bloodGroups: req.body?.bloodGroups,
   };
 
   try {
     await userModal.insertOne(doc);
-    return res.status(200).json({
+    return res.status(201).json({
       message: "Registration Successfully ..!",
     });
   } catch (error) {
@@ -444,6 +451,55 @@ export const bannersTwo = async (req, res) => {
   try {
     const banners = await userModal.find({}).toArray();
     res.status(200).json(banners);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Something went wrong",
+    });
+  }
+};
+
+export const donorsCount = async (req, res) => {
+  const userModal = getDb().collection("users");
+  try {
+    const donorsCount = await userModal.countDocuments({
+      employeeType: "Donor",
+    });
+    return res.status(200).json({
+      donorsCount,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Something went wrong",
+    });
+  }
+};
+
+export const bloodbankCount = async (req, res) => {
+  const userModal = getDb().collection("users");
+  try {
+    const bloodBankCount = await userModal.countDocuments({
+      employeeType: "BloodBank",
+    });
+    return res.status(200).json({
+      bloodBankCount,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Something went wrong",
+    });
+  }
+};
+
+export const patinetCount = async (req, res) => {
+  const patientsModal = getDb().collection("patients");
+  try {
+    const patinetCount = await patientsModal.countDocuments({});
+    return res.status(200).json({
+      patinetCount,
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({

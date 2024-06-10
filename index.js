@@ -51,6 +51,8 @@ const io = new Server(8080, {
     origin: "*",
   },
 });
+
+
 initDb((err, db) => {
   if (err) {
     console.log(err);
