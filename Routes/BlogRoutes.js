@@ -19,7 +19,7 @@ router.post("/announcements", onPostAnnouncements);
 
 router.get("/announcements", onFetchAnnouncements);
 
-router.post("/reviews", upload.single("image"), onAddReviewa);
+router.post("/reviews", onAddReviewa);
 
 router.get("/reviews", fetchAllReview);
 

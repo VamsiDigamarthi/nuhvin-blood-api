@@ -8,6 +8,8 @@ export const onAddnews = async (req, res) => {
       title: req.body?.title,
       content: req.body.content,
       image: req.file.path,
+      date: new Date(),
+      place: req.body.place,
     });
     return res.status(201).json({ message: "uploaded successfully..!" });
   } catch (error) {
@@ -73,7 +75,8 @@ export const onAddReviewa = async (req, res) => {
     await news.insertOne({
       name: req.body?.name,
       text: req.body.text,
-      image: req.file.path,
+      // image: req.file.path,
+      rating: req.body.rating,
     });
     return res.status(201).json({ message: "uploaded successfully..!" });
   } catch (error) {
