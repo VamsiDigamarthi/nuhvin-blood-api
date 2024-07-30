@@ -19,6 +19,7 @@ export const addPatientDetails = async (req, res) => {
     AttendePhone,
     addTime,
   } = req.body;
+  console.log(patientFirstName);
   try {
     await patientsModal.insertOne({
       patientFirstName,
@@ -58,6 +59,7 @@ export const addPatientDetails = async (req, res) => {
     console.log(error);
     return res.status(500).json({
       message: "Something went wrong",
+      error,
     });
   }
 };

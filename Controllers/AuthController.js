@@ -5,7 +5,13 @@ const ObjectId = mongodb.ObjectId;
 import "dotenv/config";
 import jwt from "jsonwebtoken";
 import axios from "axios";
-import { upload } from "../middelware/fileUpload.js";
+
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+import fs from "fs";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+// import { upload } from "../middelware/fileUpload.js";
 
 //
 
@@ -347,12 +353,62 @@ export const editPic = async (req, res) => {
   // console.log(req.body);
   try {
     const user = await userModal.findOne({ mobile: mobile });
+    if (user.profile) {
+      const oldImagePath = join(__dirname, "..", user.profile);
+
+      fs.unlink(oldImagePath, (err) => {
+        if (err) {
+          console.log(`Failed to delete old image: ${err}`);
+        } else {
+          console.log(`Deleted old image: ${user.profile}`);
+        }
+      });
+    }
     if (user) {
       await userModal.updateOne(
         { mobile: mobile },
         {
           $set: {
             profile: req.file?.path,
+          },
+        }
+      );
+      return res
+        .status(201)
+        .json({ message: "Upload profile successfully...!" });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Something went wrong",
+    });
+  }
+};
+
+export const onDeleteProfile = async (req, res) => {
+  const userModal = getDb().collection("users");
+  let { mobile } = req;
+  // console.log(req.body);
+  try {
+    const user = await userModal.findOne({ mobile: mobile });
+    if (user.profile) {
+      const oldImagePath = join(__dirname, "..", user.profile);
+
+      fs.unlink(oldImagePath, (err) => {
+        if (err) {
+          console.log(`Failed to delete old image: ${err}`);
+        } else {
+          console.log(`Deleted old image: ${user.profile}`);
+        }
+      });
+    }
+
+    if (user) {
+      await userModal.updateOne(
+        { mobile: mobile },
+        {
+          $set: {
+            profile: "",
           },
         }
       );

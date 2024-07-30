@@ -9,6 +9,7 @@ import {
   getFeeds,
   getUser,
   getUserById,
+  onDeleteProfile,
   patinetCount,
   registorAsDonor,
   registorBloodBank,
@@ -60,15 +61,15 @@ router.get("/getuser/:id", getUserById);
 
 router.post("/post/pic", upload.single("image"), uploadPic);
 
-router.get("/banners", authenticateToken, getBanners);
+router.get("/banners", getBanners);
 // feets
 
 router.post("/feed/pic", upload.single("image"), uploadFeed);
 
-router.get("/feeds", authenticateToken, getFeeds);
+router.get("/feeds", getFeeds);
 
 router.post("/bannerstwo", upload.single("image"), uploadBannersTwo);
-router.get("/bannersTwo", authenticateToken, bannersTwo);
+router.get("/bannersTwo", bannersTwo);
 
 // donors count
 
@@ -76,5 +77,7 @@ router.get("/donors/count", donorsCount);
 
 router.get("/bloodbank/count", bloodbankCount);
 router.get("/patinet/count", patinetCount);
+
+router.patch("/profile", authenticateToken, onDeleteProfile);
 
 export default router;

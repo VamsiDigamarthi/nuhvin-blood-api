@@ -21,6 +21,9 @@ import Patient from "./Routes/PatientRoutes.js";
 
 import ChatRoute from "./Routes/ChatRoute.js";
 import MessageRoute from "./Routes/MessageRoute.js";
+
+import NewBlog from "./Routes/BlogRoutes.js";
+
 const app = express();
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
@@ -52,7 +55,6 @@ const io = new Server(8080, {
   },
 });
 
-
 initDb((err, db) => {
   if (err) {
     console.log(err);
@@ -72,6 +74,8 @@ app.use("/patient", Patient);
 app.use("/chat", ChatRoute);
 
 app.use("/message", MessageRoute);
+
+app.use("/blog", NewBlog);
 
 app.get("/", (req, res) => {
   res.status(200).json({ message: "Hello World.......!" });
