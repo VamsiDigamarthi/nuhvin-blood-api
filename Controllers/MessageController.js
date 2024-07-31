@@ -5,11 +5,15 @@ process.env.TZ = "Asia/Kolkata";
 
 export const addMessage = async (req, res) => {
   const messageModal = getDb().collection("message");
-  const { chatId, senderId, text } = req.body;
+  const userModal = getDb().collection("users");
+  let { mobile } = req;
+  // console.log(mobile);
+  const result = await userModal.findOne({ mobile: mobile });
+  const { chatId, senderId, message } = req.body;
   const doc = {
     chatId,
-    senderId,
-    text,
+    senderId: result._id,
+    message,
     createdAt: new Date(),
   };
 
@@ -87,6 +91,3 @@ export const notificationsMarkAsRead = async (req, res) => {
     res.status(500).json(error);
   }
 };
-
-
-

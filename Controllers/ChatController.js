@@ -34,13 +34,19 @@ export const createChat = async (req, res) => {
   const senderId = req.body.senderId;
   const receiverId = req.body.receiverId;
   const requiredDate = req.body?.requiredDate;
-  const chatExists = await checkChatExists(senderId, receiverId);
+  console.log(receiverId);
+  const userModal = getDb().collection("users");
+  let { mobile } = req;
+  // console.log(mobile);
+  const result = await userModal.findOne({ mobile: mobile });
+  // console.log(result);
+  const chatExists = await checkChatExists(result._id, receiverId);
   if (chatExists) {
     return res.status(200).json("Chat already exists");
   }
 
   const doc = {
-    members: [senderId, receiverId],
+    members: [result._id, receiverId],
   };
 
   try {
@@ -52,15 +58,20 @@ export const createChat = async (req, res) => {
   }
 };
 
-
 export const userChats = async (req, res) => {
   const chatModal = getDb().collection("chat");
+  let { mobile } = req;
+  const userModal = getDb().collection("users");
+  // console.log(mobile);
+  const result = await userModal.findOne({ mobile: mobile });
+  // console.log(result);
   try {
     const chat = await chatModal
       .find({
-        members: { $in: [req.params.userId] },
+        members: { $in: [result._id] },
       })
       .toArray();
+    console.log(chat);
     res.status(200).json(chat);
   } catch (error) {
     res.status(500).json(error);

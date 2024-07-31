@@ -6,10 +6,11 @@ import {
   notifications,
   notificationsMarkAsRead,
 } from "../Controllers/MessageController.js";
+import { authenticateToken } from "../middelware/AuthMiddelware.js";
 
 const router = express.Router();
 
-router.post("/", addMessage);
+router.post("/", authenticateToken, addMessage);
 
 router.get("/:chatId", getMessages);
 
