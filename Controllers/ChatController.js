@@ -2,11 +2,14 @@ import mongodb from "mongodb";
 import { getDb } from "../Database/mongoDb.js";
 import nodemailer from "nodemailer";
 import Mailgen from "mailgen";
-const ObjectId = mongodb.ObjectId;
+// const ObjectId = mongodb.ObjectId;
 import "dotenv/config";
+
+import { ObjectId } from "mongodb";
 
 async function checkChatExists(user1Id, user2Id) {
   const chatModal = getDb().collection("chat");
+  // let objectId = mongoose.Types.ObjectId(user2Id);
   try {
     // Query the Chat model to find if there's a chat containing both user IDs
     const chat = await chatModal.findOne({
@@ -17,10 +20,10 @@ async function checkChatExists(user1Id, user2Id) {
 
     // If chat exists, return true
     if (chat) {
-      // console.log("chat is presents");
+      console.log("chat is presents");
       return true;
     } else {
-      // console.log("Chat doesn't exist");
+      console.log("Chat doesn't exist");
       return false; // Chat doesn't exist
     }
   } catch (error) {
@@ -34,19 +37,22 @@ export const createChat = async (req, res) => {
   const senderId = req.body.senderId;
   const receiverId = req.body.receiverId;
   const requiredDate = req.body?.requiredDate;
-  console.log(receiverId);
+  // console.log(receiverId);
   const userModal = getDb().collection("users");
   let { mobile } = req;
   // console.log(mobile);
+  const receiverObjectId = new ObjectId(receiverId);
   const result = await userModal.findOne({ mobile: mobile });
   // console.log(result);
-  const chatExists = await checkChatExists(result._id, receiverId);
+  const chatExists = await checkChatExists(result._id, receiverObjectId);
   if (chatExists) {
     return res.status(200).json("Chat already exists");
   }
 
+  // let objectId = mongoose.Types.ObjectId(user2Id);
+
   const doc = {
-    members: [result._id, receiverId],
+    members: [result._id, receiverObjectId],
   };
 
   try {
@@ -71,7 +77,7 @@ export const userChats = async (req, res) => {
         members: { $in: [result._id] },
       })
       .toArray();
-    console.log(chat);
+    // console.log(chat);
     res.status(200).json(chat);
   } catch (error) {
     res.status(500).json(error);

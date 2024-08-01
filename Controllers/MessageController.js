@@ -10,6 +10,7 @@ export const addMessage = async (req, res) => {
   // console.log(mobile);
   const result = await userModal.findOne({ mobile: mobile });
   const { chatId, senderId, message } = req.body;
+  // console.log(message, chatId, result._id);
   const doc = {
     chatId,
     senderId: result._id,

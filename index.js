@@ -49,7 +49,7 @@ app.use((req, res, next) => {
 
 // const server = http.createServer(app);
 const server = http.createServer(app);
-const io = new Server(8080, {
+const io = new Server(server, {
   cors: {
     origin: "*",
   },
@@ -168,7 +168,7 @@ io.on("connection", (socket) => {
     if (!activeUsers.some((user) => user.userId === newUserId)) {
       activeUsers.push({ userId: newUserId, socketId: socket.id });
     }
-    // console.log(activeUsers);
+    console.log(activeUsers);
     // send all active users to new user
     io.emit("get-users", activeUsers);
   });
@@ -196,14 +196,15 @@ io.on("connection", (socket) => {
   socket.on("send-message", (data) => {
     const { receiverId } = data;
     const user = activeUsers.find((user) => user.userId === receiverId);
-    // console.log("on", user);
+    console.log("on", user);
+    console.log(data);
     if (user) {
       io.to(user.socketId).emit("recieve-message", data);
 
       // notifications
     } else {
       const getUser = async () => {
-        const userModal = getDb().db().collection("users");
+        const userModal = getDb().collection("users");
         // console.log(req.params.id);
         try {
           const result = await userModal.findOne({
