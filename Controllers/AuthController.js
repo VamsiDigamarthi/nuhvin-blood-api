@@ -22,7 +22,9 @@ export const sendOtp = async (req, res) => {
       .collection("otp")
       .findOne({ mobile: mobile })
       .then((otpUser) => {
-        var otp = Math.floor(100000 + Math.random() * 900000);
+        // var otp = Math.floor(100000 + Math.random() * 900000);
+        var otp = "123456";
+
         if (otpUser) {
           axios(
             `https://2factor.in/API/V1/${process.env.OTP_API_KEY}/SMS/+91${mobile}/${otp}/OTP TEMPLATE`
@@ -47,7 +49,9 @@ export const sendOtp = async (req, res) => {
               return res.status(400).json({ message: "otp send failed" });
             });
         } else {
-          var otp = Math.floor(100000 + Math.random() * 900000);
+          // var otp = Math.floor(100000 + Math.random() * 900000);
+          var otp = "123456";
+
           const doc = { mobile: mobile, otp_value: otp };
           axios(
             `https://2factor.in/API/V1/${process.env.OTP_API_KEY}/SMS/+91${mobile}/${otp}/OTP TEMPLATE`
