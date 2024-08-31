@@ -12,6 +12,7 @@ import {
   onDeleteProfile,
   patinetCount,
   registorAsDonor,
+  registorAsVolantier,
   registorBloodBank,
   sendOtp,
   uploadBannersTwo,
@@ -31,6 +32,8 @@ router.post("/send-otp", sendOtp);
 router.post("/verify-otp", verifyOtp);
 
 router.post("/donor", registorAsDonor);
+
+router.post("/volunteer", registorAsVolantier);
 
 // router.patch("/reason",)
 // registor ad blood bank

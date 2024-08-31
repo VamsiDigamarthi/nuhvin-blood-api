@@ -6,6 +6,7 @@ export const onAddnews = async (req, res) => {
   try {
     await news.insertOne({
       title: req.body?.title,
+      subTitle: req.body?.subTitle,
       content: req.body.content,
       image: req.file.path,
       date: new Date(),

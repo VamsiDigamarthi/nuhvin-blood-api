@@ -96,17 +96,21 @@ export const verifyOtp = async (req, res) => {
 
   try {
     const result = await otoModal.findOne({ mobile: mobile });
+
     if (result) {
-      if (result.otp_value.toString() === otp.toString()) {
+      if (result.otp_value.toString() == otp.toString()) {
         const user = await userModal.findOne({ mobile: mobile });
+
         if (user) {
           const payload = {
             mobile: user.mobile,
           };
           const expiresIn = "24h";
           const jwtToken = jwt.sign(payload, process.env.JWT_TOKEN_SECRET);
+          console.log(jwtToken);
           return res.status(200).json({ token: jwtToken });
         } else {
+          console.log("user does not exist");
           return res.status(401).json({ message: "User Does't exist" });
         }
       } else {
@@ -144,6 +148,44 @@ export const registorAsDonor = async (req, res) => {
     signupTime: req.body?.signupTime,
     termAndCondition: req.body?.termAndCondition,
     employeeType: "Donor",
+    location: {
+      type: "Point",
+      coordinates: [
+        parseFloat(req.body?.longitude),
+        parseFloat(req.body?.latitude),
+      ],
+    },
+  };
+  try {
+    await userModal.insertOne(docs);
+    return res.status(201).json({
+      message: "Registration Successfully ..!",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Something went wrong",
+    });
+  }
+};
+
+export const registorAsVolantier = async (req, res) => {
+  const userModal = getDb().collection("users");
+
+  const docs = {
+    firstName: req.body?.firstName,
+    lastName: req.body?.lastName,
+    mobile: req.body?.mobile,
+    email: req.body?.email,
+    dateOfBirth: req.body?.dateOfBirth,
+    bloodGroup: req.body?.bloodGroup,
+    gender: req.body?.gender,
+    address: req.body?.locations,
+    isAvailable: true,
+    // isAddPatinet: false,
+    signupTime: req.body?.signupTime,
+    termAndCondition: req.body?.termAndCondition,
+    employeeType: "volunteer",
     location: {
       type: "Point",
       coordinates: [

@@ -17,6 +17,7 @@ import AuthRoute from "./Routes/AuthRoutes.js";
 import BloodBank from "./Routes/BloodBank.js";
 import BloodNeeded from "./Routes/BloodNeeded.js";
 import Patient from "./Routes/PatientRoutes.js";
+import ConcatRoute from "./Routes/ContactRoute.js";
 // import ContactRoute from "./Routes/ContactRoute.js";
 
 import ChatRoute from "./Routes/ChatRoute.js";
@@ -59,7 +60,7 @@ initDb((err, db) => {
   if (err) {
     console.log(err);
   } else {
-    server.listen(process.env.PORT || 5000, () => {
+    server.listen(process.env.PORT, () => {
       console.log(
         `Listening server at ${process.env.PORT} and connect db ........`
       );
@@ -76,6 +77,8 @@ app.use("/chat", ChatRoute);
 app.use("/message", MessageRoute);
 
 app.use("/blog", NewBlog);
+
+app.use("/contact", ConcatRoute);
 
 app.get("/", (req, res) => {
   res.status(200).json({ message: "Hello World.......!" });

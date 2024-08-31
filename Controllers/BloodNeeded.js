@@ -24,7 +24,7 @@ const sendEmails = async (users) => {
     let nowDate = new Date();
     let timeDifference = nowDate - timeOfUser;
     let finalTimeDifference = timeDifference / (1000 * 60 * 60);
-    console.log(finalTimeDifference)
+    console.log(finalTimeDifference);
     if (finalTimeDifference >= 6 || isNaN(finalTimeDifference)) {
       // console.log("if block exicuted");
       const mailOptions = {
@@ -86,21 +86,21 @@ export const donorList = async (req, res) => {
           {
             bloodGroup: req.params?.bloodGroup,
           },
-          {
-            location: {
-              $near: {
-                $geometry: {
-                  type: "Point",
-                  coordinates: [
-                    parseFloat(req.params?.longitude),
-                    parseFloat(req.params?.latitude),
-                  ],
-                },
-                $maxDistance: meters,
-                $minDistance: 0,
-              },
-            },
-          },
+          // {
+          //   location: {
+          //     $near: {
+          //       $geometry: {
+          //         type: "Point",
+          //         coordinates: [
+          //           parseFloat(req.params?.longitude),
+          //           parseFloat(req.params?.latitude),
+          //         ],
+          //       },
+          //       $maxDistance: meters,
+          //       $minDistance: 0,
+          //     },
+          //   },
+          // },
         ],
       })
       .toArray();
@@ -137,21 +137,21 @@ export const bloodBankList = async (req, res) => {
             "bloodGroups.bloodGroup": req.params?.bloodGroup,
             "bloodGroups.howMuchQuatity": { $gte: req.params?.quantity },
           },
-          {
-            location: {
-              $near: {
-                $geometry: {
-                  type: "Point",
-                  coordinates: [
-                    parseFloat(req.params?.longitude),
-                    parseFloat(req.params?.latitude),
-                  ],
-                },
-                $maxDistance: meters,
-                $minDistance: 0,
-              },
-            },
-          },
+          // {
+          //   location: {
+          //     $near: {
+          //       $geometry: {
+          //         type: "Point",
+          //         coordinates: [
+          //           parseFloat(req.params?.longitude),
+          //           parseFloat(req.params?.latitude),
+          //         ],
+          //       },
+          //       $maxDistance: meters,
+          //       $minDistance: 0,
+          //     },
+          //   },
+          // },
         ],
       })
       .toArray();
@@ -179,21 +179,21 @@ export const getRecevierList = async (req, res) => {
           {
             bloodGroup: req.params?.bloodGroup,
           },
-          {
-            location: {
-              $near: {
-                $geometry: {
-                  type: "Point",
-                  coordinates: [
-                    parseFloat(req.params?.longitude),
-                    parseFloat(req.params?.latitude),
-                  ],
-                },
-                $maxDistance: meters,
-                $minDistance: 0,
-              },
-            },
-          },
+          // {
+          //   location: {
+          //     $near: {
+          //       $geometry: {
+          //         type: "Point",
+          //         coordinates: [
+          //           parseFloat(req.params?.longitude),
+          //           parseFloat(req.params?.latitude),
+          //         ],
+          //       },
+          //       $maxDistance: meters,
+          //       $minDistance: 0,
+          //     },
+          //   },
+          // },
         ],
       })
       .toArray();
