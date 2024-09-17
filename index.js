@@ -8,6 +8,8 @@ import fetch from "node-fetch";
 import axios from "axios";
 // import nodemailer from "nodemailer";
 import mongodb from "mongodb";
+import jwt from "jsonwebtoken";
+import "dotenv/config";
 // const { OTPless } = require('otpless-node-js-auth-sdk');
 const ObjectId = mongodb.ObjectId;
 // import Mailgen from "mailgen";
@@ -24,6 +26,7 @@ import ChatRoute from "./Routes/ChatRoute.js";
 import MessageRoute from "./Routes/MessageRoute.js";
 
 import NewBlog from "./Routes/BlogRoutes.js";
+import { authenticateToken } from "./middelware/AuthMiddelware.js";
 
 const app = express();
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
@@ -79,6 +82,117 @@ app.use("/message", MessageRoute);
 app.use("/blog", NewBlog);
 
 app.use("/contact", ConcatRoute);
+
+// dummy data  apis start
+
+// register
+app.post("/register", async (req, res) => {
+  const userModal = getDb().collection("newUsers");
+  const {
+    mobile,
+    password,
+    fullName,
+    bloodGroup,
+    yearOfBirth,
+    email,
+    // country,
+    state,
+    district,
+    city,
+    emergencyAvailability,
+    above18Years,
+  } = req.body;
+  try {
+    const docs = {
+      mobile,
+      password,
+      fullName,
+      bloodGroup,
+      yearOfBirth,
+      email,
+      country: "india",
+      state,
+      district,
+      city,
+      emergencyAvailability,
+      above18Years,
+    };
+    await userModal.insertOne(docs);
+    return res.status(201).json({
+      message: "Registration Successfully ..!",
+    });
+  } catch (error) {
+    console.log({ error: error.message, message: "new registration failed" });
+    res.status(500).json({ message: "new registration failed" });
+  }
+});
+
+app.post("/login", async (req, res) => {
+  const userModal = getDb().collection("newUsers");
+  const { mobile, password } = req.body;
+  try {
+    const user = await userModal.findOne({ mobile });
+    if (!user) {
+      return res.status(401).json({ message: "User Not Found" });
+    }
+
+    if (user.password !== password) {
+      return res.status(401).json({ message: "Incorrect Password" });
+    }
+    const payload = {
+      mobile: user.mobile,
+    };
+    const expiresIn = "24h";
+    const jwtToken = jwt.sign(payload, process.env.JWT_TOKEN_SECRET);
+    return res.status(200).json({ token: jwtToken });
+  } catch (error) {
+    console.log({ error: error.message, message: "Login failed" });
+    res.status(500).json({ message: "Login failed" });
+  }
+});
+
+app.get(
+  "/donor/:bloodGroup/:state/:district/:city",
+  // authenticateToken,
+  async (req, res) => {
+    const userModal = getDb().collection("newUsers");
+    try {
+      const { bloodGroup, state, district, city } = req.params;
+      const docs = await userModal
+        .find({
+          bloodGroup,
+          // country,
+          state,
+          district,
+          city,
+        })
+        .toArray();
+      return res.status(200).json({ donors: docs });
+    } catch (error) {
+      console.log({
+        error: error.message,
+        message: "fetching donor failed..!",
+      });
+    }
+  }
+);
+
+app.patch("/donor-report/:id", authenticateToken, async (req, res) => {
+  const userModal = getDb().collection("newUsers");
+  const { report } = req.body;
+  try {
+    await userModal.updateOne(
+      { _id: new ObjectId(req.params.id) },
+      { $set: { report: report } }
+    );
+    return res.status(200).json({ message: "Report Updated Successfully..!" });
+  } catch (error) {
+    console.log({ error: error.message, message: "update report failed" });
+    res.status(500).json({ message: "update report failed" });
+  }
+});
+
+// dummy data apis end
 
 app.get("/", (req, res) => {
   res.status(200).json({ message: "Hello World.......!" });
