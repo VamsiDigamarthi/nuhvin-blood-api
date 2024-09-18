@@ -99,12 +99,12 @@ app.post("/register", async (req, res) => {
     state,
     district,
     city,
-    emergencyAvailability,
-    above18Years,
+    // emergencyAvailability,
+    // above18Years,
   } = req.body;
   try {
     const docs = {
-      mobile,
+      mobile: parseFloat(mobile),
       password,
       fullName,
       bloodGroup,
@@ -114,8 +114,8 @@ app.post("/register", async (req, res) => {
       state,
       district,
       city,
-      emergencyAvailability,
-      above18Years,
+      // emergencyAvailability,
+      // above18Years,
     };
     await userModal.insertOne(docs);
     return res.status(201).json({
@@ -127,11 +127,123 @@ app.post("/register", async (req, res) => {
   }
 });
 
+app.patch("/edit-profile/:mobile", async (req, res) => {
+  const userModal = getDb().collection("newUsers");
+  const {
+    fullName,
+    bloodGroup,
+    yearOfBirth,
+    email,
+    // country,
+    state,
+    district,
+    city,
+    // emergencyAvailability,
+    // above18Years,
+  } = req.body;
+  const { mobile } = req.params;
+  const updateFields = {};
+  if (mobile) updateFields.mobile = parseFloat(mobile);
+  // if (password) updateFields.password = password;
+  if (fullName) updateFields.fullName = fullName;
+  if (bloodGroup) updateFields.bloodGroup = bloodGroup;
+  if (yearOfBirth) updateFields.yearOfBirth = yearOfBirth;
+  if (email) updateFields.email = email;
+  // if (country) updateFields.country = country;
+  if (state) updateFields.state = state;
+  if (district) updateFields.district = district;
+  if (city) updateFields.city = city;
+  // if (emergencyAvailability) updateFields.emergencyAvailability = emergencyAvailability;
+  // if (above18Years) updateFields.above18Years = above18Years;
+  try {
+    await userModal.updateOne(
+      { mobile: parseFloat(mobile) },
+      { $set: updateFields },
+      {new : true },
+    );
+    return res.status(200).json({ message: "Profile Edited Successfully.." });
+  } catch (error) {
+    console.log({ error: error.message, message: "Profile edit failed" });
+    return res.status(500).json({ message: "Profile edit failed" });
+  }
+});
+
+app.post("/last-donation/:mobile", async (req, res) => {
+  const userModal = getDb().collection("lastDonation");
+  const { mobile } = req.params;
+  const { donationDate, patientName, location, hospitalName, typeOfDonation } =
+    req.body;
+  try {
+    const docs = {
+      mobile: parseFloat(mobile),
+      donationDate,
+      patientName,
+      location,
+      hospitalName,
+      typeOfDonation,
+    };
+    await userModal.insertOne(docs);
+    return res
+      .status(201)
+      .json({ message: "Last Donation Logged Successfully.." });
+  } catch (error) {
+    console.log({
+      error: error.message,
+      message: "Failed to get last donation",
+    });
+    return res.status(500).json({ message: "Failed to get last donation" });
+  }
+});
+
+app.get("/donation-list/:mobile", async (req, res) => {
+  const userModal = getDb().collection("lastDonation");
+  const { mobile } = req.params;
+  try {
+    const docs = await userModal.find({ mobile: parseFloat(mobile) }).toArray();
+
+    return res.status(200).json(docs);
+  } catch (error) {
+    console.log({
+      error: error.message,
+      message: "Failed to get donation list",
+    });
+    res.status(500).json({ message: "Failed to get donation list" });
+  }
+});
+
+app.delete("/account-deleted/:mobile", async (req, res) => {
+  const userModal = getDb().collection("newUsers");
+  const { mobile } = req.params;
+  try {
+    await userModal.deleteOne({ mobile: parseFloat(mobile) });
+    return res.status(200).json({ message: "Account Deleted Successfully.." });
+  } catch (error) {
+    console.log({ error: error.message, message: "account deleted failed" });
+    res.status(500).json({ message: "account deleted failed" });
+  }
+});
+
+app.get("/profile/:mobile", async (req, res) => {
+  const userModal = getDb().collection("newUsers");
+  const { mobile } = req.params;
+  try {
+    const user = await userModal.findOne({ mobile: parseFloat(mobile) });
+    if (!user) {
+      return res.status(404).json({ message: "User Not Found" });
+    }
+    delete user.password;
+    return res.status(200).json(user);
+  } catch (error) {
+    console.log({ error: error.message, message: "Failed to get profile" });
+    res.status(500).json({ message: "Failed to get profile" });
+  }
+});
+
 app.post("/login", async (req, res) => {
   const userModal = getDb().collection("newUsers");
   const { mobile, password } = req.body;
   try {
-    const user = await userModal.findOne({ mobile });
+    const user = await userModal.findOne({ mobile: parseFloat(mobile) });
     if (!user) {
       return res.status(401).json({ message: "User Not Found" });
     }
@@ -177,7 +289,7 @@ app.get(
   }
 );
 
-app.patch("/donor-report/:id", authenticateToken, async (req, res) => {
+app.patch("/donor-report/:id", async (req, res) => {
   const userModal = getDb().collection("newUsers");
   const { report } = req.body;
   try {
@@ -189,6 +301,43 @@ app.patch("/donor-report/:id", authenticateToken, async (req, res) => {
   } catch (error) {
     console.log({ error: error.message, message: "update report failed" });
     res.status(500).json({ message: "update report failed" });
+  }
+});
+
+app.patch("/forgot-password", async (req, res) => {
+  const userModal = getDb().collection("newUsers");
+  const { mobile, password } = req.body;
+
+  // Convert mobile to double
+  const mobileDouble = parseFloat(mobile);
+
+  try {
+    // Query using the converted double value
+    const user = await userModal.findOne({ mobile: mobileDouble });
+
+    if (!user) {
+      return res.status(401).json({ message: "User Not Found" });
+    }
+
+    // Update the password
+    await userModal.updateOne(
+      { _id: new ObjectId(user._id) }, // Ensure user._id is an ObjectId
+      { $set: { password } }
+    );
+    return res.status(200).json({ message: "Password Reset Successfully..!" });
+  } catch (error) {
+    console.log({ error: error.message, message: "forgot password failed" });
+    res.status(500).json({ message: "forgot password failed" });
+  }
+});
+
+app.post("/api/items", async (req, res) => {
+  const userModal = getDb().collection("newUsers");
+  try {
+    await userModal.insertMany(req.body);
+  } catch (error) {
+    console.log({ error: error.message, message: "exel error" });
+    res.status(500).json({ message: "exel error" });
   }
 });
 
